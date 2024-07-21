@@ -4,10 +4,9 @@ import { cn } from '@/lib/utils'
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, label, ...props }, ref) => {
+const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, ...props }, ref) => {
     return (
         <div>
-            <h5 className='text-sm text-slate-500 pb-0.5'>{label}</h5>
             <input
                 type={type}
                 className={cn(
