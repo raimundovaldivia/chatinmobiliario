@@ -14,7 +14,7 @@ export default function Login() {
             <div className='m-0 absolute top-1/2 transform -translate-y-1/2'>
                 <LoginForm />{' '}
                 <div className='flex flex-row justify-center pt-5'>
-                    <Link href='/auth/login' className='rounded-lg text-m text-black'>
+                    <Link href='/auth/reset-password/submit' className='rounded-lg text-m text-black'>
                         Olvidaste tu Contraseña?
                     </Link>
                 </div>{' '}
@@ -24,7 +24,6 @@ export default function Login() {
                         Registrate
                     </Link>
                 </div>
-                <Button onClick={onSubmit}>Log Out</Button>
             </div>
         </div>
     )

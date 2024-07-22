@@ -1,42 +1,34 @@
 'use client'
 import React, { useTransition } from 'react'
-import { Button } from '../button'
-import { Input } from '../input'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { useForm } from 'react-hook-form'
-import { TConfirmSignupSchema } from '@/lib/types/ConfirmSignupSchema'
-import { confirmSignupSchema } from '@/lib/schemas/confirm-signup'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { handleConfirmSignUp, handleSendEmailVerificationCode } from '@/lib/cognitoActions'
+import { handleConfirmResetPassword } from '@/lib/cognitoActions'
+import { TResetPasswordSchema } from '@/lib/types/ResetPasswordSchema'
+import { resetPasswordSchema } from '@/lib/schemas/reset-password'
 import { useSearchParams } from 'next/navigation'
 
-export default function ConfirmSignUpForm() {
+export default function ConfirmResetPasswordForm() {
     const [pending, startTransition] = useTransition()
     const searchParams = useSearchParams()
     const email = searchParams.get('email')
 
-    const form = useForm<TConfirmSignupSchema>({
-        resolver: zodResolver(confirmSignupSchema),
+    const form = useForm<TResetPasswordSchema>({
+        resolver: zodResolver(resetPasswordSchema),
         defaultValues: {
             email: email || '',
             code: '',
+            newPassword: '',
+            confirmPassword: '',
         },
     })
 
-    const onSubmit = (values: TConfirmSignupSchema) => {
+    const onSubmit = (values: TResetPasswordSchema) => {
         startTransition(async () => {
-            const response = await handleConfirmSignUp(undefined, values)
+            const response = await handleConfirmResetPassword(undefined, values)
             console.log('Confirm sign-up response:', response)
-        })
-    }
-
-    function handleSendConfirmationCode() {
-        const values = form.getValues()
-        const initialState = { message: '', errorMessage: '' }
-        console.log(values.email)
-        startTransition(async () => {
-            const response = await handleSendEmailVerificationCode(initialState, values)
-            console.log('Email verification code response:', response)
         })
     }
 
@@ -59,25 +51,43 @@ export default function ConfirmSignUpForm() {
                 />
                 <FormField
                     control={form.control}
+                    name='newPassword'
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Nueva Contraseña</FormLabel>
+                            <FormControl>
+                                <div>
+                                    <Input type='password' {...field} />
+                                </div>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name='confirmPassword'
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Confirmar Contraseña</FormLabel>
+                            <FormControl>
+                                <div>
+                                    <Input type='password' {...field} />
+                                </div>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
                     name='code'
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Codigo</FormLabel>
                             <FormControl>
-                                <div className='flex space-x-2  w-full'>
-                                    <div className='grow'>
-                                        <Input type='text' {...field} />
-                                    </div>
-
-                                    <div className='flex-none'>
-                                        <Button
-                                            disabled={pending}
-                                            variant='outline'
-                                            onClick={handleSendConfirmationCode}
-                                        >
-                                            {pending ? 'Enviando...' : 'Reenviar'}
-                                        </Button>
-                                    </div>
+                                <div>
+                                    <Input type='text' {...field} />
                                 </div>
                             </FormControl>
                             <FormMessage />

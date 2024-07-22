@@ -1,10 +1,20 @@
 import { redirect } from 'next/navigation'
-import { signUp, confirmSignUp, autoSignIn, resendSignUpCode, signIn, signOut } from 'aws-amplify/auth'
+import {
+    signUp,
+    confirmSignUp,
+    autoSignIn,
+    resendSignUpCode,
+    signIn,
+    signOut,
+    resetPassword,
+    confirmResetPassword,
+} from 'aws-amplify/auth'
 import { TLoginSchema } from './types/LoginSchema'
 import { TSignUpSchema } from './types/SignUpSchema'
 import { getErrorMessage } from '@/utils/get-error-message'
 
 import { TConfirmSignupSchema } from './types/ConfirmSignupSchema'
+import { TResetPasswordSchema } from './types/ResetPasswordSchema'
 
 export async function handleSignUp(prevState: string | undefined, formData: TSignUpSchema) {
     let success = false
@@ -18,8 +28,6 @@ export async function handleSignUp(prevState: string | undefined, formData: TSig
                     name: String(formData.name),
                     middle_name: String(formData.surname),
                 },
-                // optional
-                autoSignIn: true,
             },
         })
         success = true
@@ -27,11 +35,10 @@ export async function handleSignUp(prevState: string | undefined, formData: TSig
         return getErrorMessage(error)
     } finally {
         if (success) {
-            redirect('/auth/confirm-signup')
+            redirect(`/auth/confirm-signup?email=${String(formData.email)}`)
         }
     }
 }
-
 export async function handleSendEmailVerificationCode(
     prevState: { message: string; errorMessage: string },
     formData: TConfirmSignupSchema
@@ -54,7 +61,6 @@ export async function handleSendEmailVerificationCode(
 
     return currentState
 }
-
 export async function handleConfirmSignUp(prevState: string | undefined, formData: TConfirmSignupSchema) {
     let success = false
     try {
@@ -63,11 +69,12 @@ export async function handleConfirmSignUp(prevState: string | undefined, formDat
             confirmationCode: String(formData.code),
         })
         success = true
+        autoSignIn()
     } catch (error) {
         return getErrorMessage(error)
     } finally {
         if (success) {
-            redirect('/dashboard')
+            redirect('/auth/login')
         }
     }
 }
@@ -97,17 +104,41 @@ export async function handleSignIn(prevState: string | undefined, formData: TLog
         }
     }
 }
-
 export async function handleSignOut() {
     let success = false
     try {
-        await signOut()
+        signOut()
         success = true
     } catch (error) {
-        console.log(getErrorMessage(error))
+        return getErrorMessage(error)
     } finally {
         if (success) {
             redirect('/auth/login')
         }
     }
+}
+export async function handleResetPassword(prevState: string | undefined, email: string) {
+    let statues = false
+    try {
+        await resetPassword({ username: String(email) })
+        statues = true
+    } catch (error) {
+        return getErrorMessage(error)
+    } finally {
+        if (statues) {
+            redirect(`/auth/reset-password/confirm?email=${email}`)
+        }
+    }
+}
+export async function handleConfirmResetPassword(prevState: string | undefined, formData: TResetPasswordSchema) {
+    try {
+        await confirmResetPassword({
+            username: String(formData.email),
+            confirmationCode: String(formData.code),
+            newPassword: String(formData.newPassword),
+        })
+    } catch (error) {
+        return getErrorMessage(error)
+    }
+    redirect('/auth/login')
 }
