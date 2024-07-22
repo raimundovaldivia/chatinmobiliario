@@ -140,7 +140,6 @@ export async function handleConfirmResetPassword(prevState: string | undefined, 
 export async function handleSignOut() {
     let success = false
     try {
-        const { username, userId, signInDetails } = await getCurrentUser()
         await signOut()
         success = true
     } catch (error) {
@@ -150,10 +149,4 @@ export async function handleSignOut() {
             redirect('/auth/signout')
         }
     }
-}
-
-export async function handleGoogle() {
-    await signInWithRedirect({
-        provider: 'Google',
-    })
 }

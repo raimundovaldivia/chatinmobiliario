@@ -3,7 +3,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
 
-const { COGNITO_DOMAIN, GOOGLE_COGNITO_CLIENT_ID } = process.env
+const { GOOGLE_COGNITO_DOMAIN, GOOGLE_COGNITO_CLIENT_ID } = process.env
 
 export async function GET(request: NextRequest) {
     let authorizeParams = new URLSearchParams()
@@ -18,5 +18,5 @@ export async function GET(request: NextRequest) {
     authorizeParams.append('identity_provider', 'Google')
     authorizeParams.append('scope', 'profile email openid')
 
-    return NextResponse.redirect(`${COGNITO_DOMAIN}/oauth2/authorize?${authorizeParams.toString()}`)
+    return NextResponse.redirect(`${GOOGLE_COGNITO_DOMAIN}/oauth2/authorize?${authorizeParams.toString()}`)
 }

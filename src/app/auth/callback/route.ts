@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 import 'aws-amplify/auth/enable-oauth-listener'
 
-const { COGNITO_DOMAIN, GOOGLE_COGNITO_CLIENT_ID, COGNITO_APP_CLIENT_SECRET } = process.env
+const { GOOGLE_COGNITO_DOMAIN, GOOGLE_COGNITO_CLIENT_ID, GOOGLE_COGNITO_APP_CLIENT_SECRET } = process.env
 
 export async function GET(request: NextRequest) {
     try {
@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
         console.log('Authorization code received:', code)
 
         const authorizationHeader = `Basic ${Buffer.from(
-            `${GOOGLE_COGNITO_CLIENT_ID}:${COGNITO_APP_CLIENT_SECRET}`
+            `${GOOGLE_COGNITO_CLIENT_ID}:${GOOGLE_COGNITO_APP_CLIENT_SECRET}`
         ).toString('base64')}`
 
         console.log('Authorization header generated:', authorizationHeader)
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
         console.log('Request body for token:', requestBody.toString())
 
         // Get tokens
-        const res = await fetch(`${COGNITO_DOMAIN}/oauth2/token`, {
+        const res = await fetch(`${GOOGLE_COGNITO_DOMAIN}/oauth2/token`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
