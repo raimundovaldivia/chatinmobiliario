@@ -8,17 +8,20 @@ import {
     signOut,
     resetPassword,
     confirmResetPassword,
+    getCurrentUser,
+    signInWithRedirect,
 } from 'aws-amplify/auth'
 import { TLoginSchema } from './types/LoginSchema'
 import { TSignUpSchema } from './types/SignUpSchema'
 import { getErrorMessage } from '@/utils/get-error-message'
-
 import { TConfirmSignupSchema } from './types/ConfirmSignupSchema'
 import { TResetPasswordSchema } from './types/ResetPasswordSchema'
+import { authenticatedUser } from '@/utils/amplify-server-utils'
 
 export async function handleSignUp(prevState: string | undefined, formData: TSignUpSchema) {
     let success = false
     try {
+        console.log('Starting sign-up process with formData:', formData)
         const { isSignUpComplete, userId, nextStep } = await signUp({
             username: String(formData.email),
             password: String(formData.password),
@@ -30,11 +33,14 @@ export async function handleSignUp(prevState: string | undefined, formData: TSig
                 },
             },
         })
+        console.log('Sign-up response received:', { isSignUpComplete, userId, nextStep })
         success = true
     } catch (error) {
+        console.error('Sign-up error encountered:', error)
         return getErrorMessage(error)
     } finally {
         if (success) {
+            console.log('Sign-up successful, redirecting to confirm-signup page')
             redirect(`/auth/confirm-signup?email=${String(formData.email)}`)
         }
     }
@@ -104,19 +110,7 @@ export async function handleSignIn(prevState: string | undefined, formData: TLog
         }
     }
 }
-export async function handleSignOut() {
-    let success = false
-    try {
-        signOut()
-        success = true
-    } catch (error) {
-        return getErrorMessage(error)
-    } finally {
-        if (success) {
-            redirect('/auth/login')
-        }
-    }
-}
+
 export async function handleResetPassword(prevState: string | undefined, email: string) {
     let statues = false
     try {
@@ -141,4 +135,25 @@ export async function handleConfirmResetPassword(prevState: string | undefined, 
         return getErrorMessage(error)
     }
     redirect('/auth/login')
+}
+
+export async function handleSignOut() {
+    let success = false
+    try {
+        const { username, userId, signInDetails } = await getCurrentUser()
+        await signOut()
+        success = true
+    } catch (error) {
+        console.log('error')
+    } finally {
+        if (!success) {
+            redirect('/auth/signout')
+        }
+    }
+}
+
+export async function handleGoogle() {
+    await signInWithRedirect({
+        provider: 'Google',
+    })
 }

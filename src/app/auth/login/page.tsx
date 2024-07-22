@@ -1,14 +1,9 @@
 'use client'
 import LoginForm from '@/components/ui/auth/login-form'
-import { Button } from '@/components/ui/button'
-import { handleSignOut } from '@/lib/cognitoActions'
 import Link from 'next/link'
 import React from 'react'
 
 export default function Login() {
-    function onSubmit() {
-        return handleSignOut()
-    }
     return (
         <div className='flex justify-center'>
             <div className='m-0 absolute top-1/2 transform -translate-y-1/2'>

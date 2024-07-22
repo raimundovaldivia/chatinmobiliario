@@ -96,6 +96,7 @@ export default function LoginForm() {
                         </FormItem>
                     )}
                 />
+
                 <Button size='lg' type='submit' disabled={pending}>
                     {pending ? 'Ingresando...' : 'Enviar'}
                 </Button>
