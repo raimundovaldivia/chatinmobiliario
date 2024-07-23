@@ -43,7 +43,6 @@ export default function ConfirmSignUpForm() {
     return (
         <Form {...form}>
             <form className='flex flex-col justify-between gap-8 min-w-[450px]' onSubmit={form.handleSubmit(onSubmit)}>
-                <h1>Chat Inmobiliario</h1>
                 <FormField
                     control={form.control}
                     name='email'

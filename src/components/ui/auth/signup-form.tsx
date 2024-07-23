@@ -30,13 +30,12 @@ export default function LoginForm() {
     return (
         <Form {...form}>
             <form className='flex flex-col justify-between gap-6 min-w-[450px]' onSubmit={form.handleSubmit(onSubmit)}>
-                <h1>Chat Inmobiliario</h1>
                 <FormField
                     control={form.control}
                     name='name'
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Nomber</FormLabel>
+                            <FormLabel>Nombre</FormLabel>
                             <FormControl>
                                 <Input type='text' {...field} />
                             </FormControl>
