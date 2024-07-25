@@ -8,8 +8,6 @@ import {
     signOut,
     resetPassword,
     confirmResetPassword,
-    getCurrentUser,
-    signInWithRedirect,
 } from 'aws-amplify/auth'
 import { TLoginSchema } from './types/LoginSchema'
 import { TSignUpSchema } from './types/SignUpSchema'
@@ -31,6 +29,7 @@ export async function handleSignUp(prevState: string | undefined, formData: TSig
                     name: String(formData.name),
                     middle_name: String(formData.surname),
                 },
+                autoSignIn: true,
             },
         })
         console.log('Sign-up response received:', { isSignUpComplete, userId, nextStep })
@@ -75,12 +74,13 @@ export async function handleConfirmSignUp(prevState: string | undefined, formDat
             confirmationCode: String(formData.code),
         })
         success = true
-        autoSignIn()
+        await autoSignIn()
+        console.log('autosigin')
     } catch (error) {
         return getErrorMessage(error)
     } finally {
         if (success) {
-            redirect('/auth/login')
+            redirect('/auth/callback')
         }
     }
 }
