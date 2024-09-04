@@ -1,63 +1,52 @@
 'use client'
 import 'aws-amplify/auth/enable-oauth-listener'
 import { useEffect, useState } from 'react'
-import { Hub } from 'aws-amplify/utils'
-import { AuthUser, getCurrentUser } from 'aws-amplify/auth'
-import { LoadingSpinner } from '@/components/ui/spinner'
+import { getCurrentUser } from 'aws-amplify/auth'
+import { useRouter } from 'next/navigation'
+import { fetchGoogleUserAttributes } from '@/lib/fetchGoogleUserAttributes'
 
-export default function SignInCallback() {
-    const [user, setUser] = useState<AuthUser | null>(null)
+export default function AuthCallback() {
     const [error, setError] = useState<string | null>(null)
-    const [customState, setCustomState] = useState<string | null>(null)
+    const router = useRouter()
+    const [isRouterReady, setIsRouterReady] = useState(false)
 
     useEffect(() => {
-        const unsubscribe = Hub.listen('auth', ({ payload }) => {
-            console.log('Auth event received:', payload.event)
-            switch (payload.event) {
-                case 'signInWithRedirect':
-                    getUser()
-                    console.log('User signed in with redirect')
-                    break
-                case 'signInWithRedirect_failure':
-                    setError('An error has occurred during the OAuth flow.')
-                    console.error('Sign in with redirect failed')
-                    break
-                case 'customOAuthState':
-                    setCustomState(payload.data) // this is the customState provided on signInWithRedirect function
-                    console.log('Custom OAuth state received:', payload.data)
-                    break
-                default:
-                    console.log('Unhandled auth event:', payload.event)
-            }
-        })
-
-        console.log('Initializing getUser call')
-        getUser()
-
-        return () => {
-            console.log('Unsubscribing from auth events')
-            unsubscribe()
+        if (router) {
+            setIsRouterReady(true)
         }
-    }, [])
+    }, [router])
 
-    const getUser = async (): Promise<void> => {
-        try {
-            console.log('Attempting to get current user')
-            const currentUser = await getCurrentUser()
-            setUser(currentUser)
-            console.log('Current user:', currentUser)
-            if (currentUser) {
-                window.location.href = '/dashboard'
+    useEffect(() => {
+        const handleAuthCallback = async () => {
+            try {
+                await getCurrentUser()
+
+                const formattedData = await fetchGoogleUserAttributes()
+
+                if (!formattedData) {
+                    throw new Error('User data is null')
+                }
+
+                await fetch('/api/auth/verify-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formattedData),
+                })
+
+                router.push('/dashboard')
+            } catch (err) {
+                console.error('Error during OAuth callback:', err)
+                setError('Authentication failed. Please try again.')
+                router.push('/error')
             }
-        } catch (error) {
-            console.error('Error getting current user:', error)
-            console.log('Not signed in')
         }
-    }
 
-    return (
-        <div>
-            <LoadingSpinner />
-        </div>
-    )
+        if (isRouterReady) {
+            handleAuthCallback()
+        }
+    }, [isRouterReady, router])
+
+    return <div></div>
 }

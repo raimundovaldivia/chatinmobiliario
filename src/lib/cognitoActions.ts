@@ -14,7 +14,8 @@ import { TSignUpSchema } from './types/SignUpSchema'
 import { getErrorMessage } from '@/utils/get-error-message'
 import { TConfirmSignupSchema } from './types/ConfirmSignupSchema'
 import { TResetPasswordSchema } from './types/ResetPasswordSchema'
-import { authenticatedUser } from '@/utils/amplify-server-utils'
+
+export async function checkIfUserExists(email: string) {}
 
 export async function handleSignUp(prevState: string | undefined, formData: TSignUpSchema) {
     let success = false

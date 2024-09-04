@@ -11,7 +11,7 @@ export const authConfig: ResourcesConfig['Auth'] = {
                 scopes: ['email', 'openid'],
                 redirectSignIn: [String(process.env.NEXT_PUBLIC_OAUTH_REDIRECT_SIGN_IN)],
                 redirectSignOut: [String(process.env.NEXT_PUBLIC_OAUTH_REDIRECT_SIGN_OUT)],
-                responseType: 'token',
+                responseType: 'code',
             },
         },
     },
@@ -24,6 +24,6 @@ Amplify.configure(
     { ssr: true }
 )
 
-export default function ConfigureAmplifyClientSide() {
+export default function AmplifyClientSideConfig() {
     return null
 }

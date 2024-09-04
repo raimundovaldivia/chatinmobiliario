@@ -2,14 +2,17 @@ import React from 'react'
 import { Separator } from '../separator'
 import { Button } from '../button'
 import { signInWithGoogle } from '@/lib/authActions'
-import { useEffect } from 'react'
-import { useRouter } from 'next/router'
-import { Hub } from 'aws-amplify/utils'
+import GoogleIcon from '@/components/icons/GoogleIcon'
 
 export default function GoogleLogin({ label }: { label: string }) {
     return (
-        <div>
-            <Button onClick={signInWithGoogle}>{label}</Button>
+        <>
+            <Button onClick={signInWithGoogle} size='lg' variant='outline' className='w-full border-2 border-gray-300'>
+                <div className='flex flex-row items-center gap-4'>
+                    <GoogleIcon size={35} />
+                    {label}
+                </div>
+            </Button>
             <div className='flex flex-row justify-center items-center my-6'>
                 <div className='flex-grow'>
                     <Separator />
@@ -19,6 +22,6 @@ export default function GoogleLogin({ label }: { label: string }) {
                     <Separator />
                 </div>
             </div>
-        </div>
+        </>
     )
 }
