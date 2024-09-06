@@ -1,23 +1,25 @@
 'use client'
+
 import React, { useState, useEffect, useTransition } from 'react'
 import InboxBottomBar from '@/components/ui/inbox/InboxBottomBar'
 import InboxMessage from '@/components/ui/inbox/InboxMessage'
 import InboxTopBar from '@/components/ui/inbox/InboxTopBar'
 import InboxSidebar from '@/components/ui/inbox/InboxSideBar'
 import { fetchConversations } from '@/lib/query/conversations/fetchConversations'
+import useWebSocket from '@/utils/useWebSocket' // Import WebSocket hook
 
 const InboxPage = () => {
     const [phone, setPhone] = useState('')
     const [leadId, setLeadId] = useState('')
     const [leadMessages, setLeadMessages] = useState([])
-    const [isPending, startTransition] = useTransition() // Using useTransition
-    // console.log(leadMessages)
+    const [isPending, startTransition] = useTransition()
+    const { messages: wsMessages } = useWebSocket('ws://localhost:8081') // WebSocket connection
 
+    // Fetch conversations whenever leadId changes
     useEffect(() => {
         if (leadId) {
             startTransition(async () => {
-                const data = await fetchConversations(leadId) // Fetch the conversations
-
+                const data = await fetchConversations(leadId)
                 if (data.conversations) {
                     const messages = data.conversations.map((conversation: any) => ({
                         sender: conversation.lead_message,
@@ -29,6 +31,23 @@ const InboxPage = () => {
             })
         }
     }, [leadId])
+
+    // Re-fetch conversations when new WebSocket message is received
+    useEffect(() => {
+        if (wsMessages.length > 0 && leadId) {
+            startTransition(async () => {
+                const data = await fetchConversations(leadId) // Refresh conversations
+                if (data.conversations) {
+                    const messages = data.conversations.map((conversation: any) => ({
+                        sender: conversation.lead_message,
+                        text: conversation.message,
+                        time: new Date(conversation.sent_at).toLocaleString(),
+                    }))
+                    setLeadMessages(messages)
+                }
+            })
+        }
+    }, [wsMessages, leadId])
 
     return (
         <div className='flex'>
